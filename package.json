@@ -1,0 +1,15 @@
+{
+  "name": "fair-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run dev:server\" \"npm run dev:client\"",
+    "build": "npm --prefix shared run build && npm --prefix server run build && npm --prefix client run build",
+    "install:all": "npm install && npm --prefix shared install && npm --prefix server install && npm --prefix client install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

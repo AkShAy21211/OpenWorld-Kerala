@@ -1,0 +1,111 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id          String   @id @default(uuid())
+  sessionId   String   @unique
+  displayName String
+  avatarColor String   @default("#E11D48")
+  avatarId    String   @default("visitor_default")
+  isGuest     Boolean  @default(true)
+  email       String?
+  createdAt   DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+
+  wallet           Wallet?
+  inventory        Inventory[]
+  dailyRewards     DailyReward[]
+  rideScores       RideScore[]
+  guestbookEntries GuestbookEntry[]
+  pookkalams       Pookkalam[]
+}
+
+model Wallet {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  points    Int      @default(15) // Welcome gift of 15 points
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Item {
+  id            String   @id
+  name          String
+  malayalamName String
+  type          String   // 'outfit' | 'instrument' | 'headwear'
+  price         Int
+  description   String
+  previewColor  String
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  inventory Inventory[]
+}
+
+model Inventory {
+  id         String   @id @default(uuid())
+  userId     String
+  itemId     String
+  acquiredAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemId])
+}
+
+model DailyReward {
+  id         String   @id @default(uuid())
+  userId     String
+  rewardDate String   // Format: YYYY-MM-DD
+  foodCardId String
+  points     Int
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, rewardDate])
+}
+
+model RideScore {
+  id             String   @id @default(uuid())
+  userId         String
+  score          Int
+  timingAccuracy String   // 'perfect' | 'good' | 'miss'
+  attemptType    String   // 'scored' | 'practice'
+  pointsAwarded  Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model GuestbookEntry {
+  id        String   @id @default(uuid())
+  userId    String
+  message   String
+  approved  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Pookkalam {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  colors    String   // JSON stringified array of hex colors
+  pattern   String   // 'chakram' | 'lotus' | 'star' | 'rings'
+  caption   String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
