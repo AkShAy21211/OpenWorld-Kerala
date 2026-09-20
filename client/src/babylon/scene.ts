@@ -9,10 +9,12 @@ import { setupLighting } from './world/lighting';
 import { buildTerrain } from './world/terrain';
 import { buildArchitecture } from './world/architecture';
 import { buildProps } from './world/props';
+import { buildLandscape } from './world/landscape';
 import { LocalPlayer } from './player/LocalPlayer';
 import { RemotePlayer } from './player/RemotePlayer';
 import { useUserStore } from '../store/useUserStore';
 import { useMultiplayerStore } from '../store/useMultiplayerStore';
+import { useGameStore } from '../store/useGameStore';
 import { PlayerState } from 'fair-shared';
 
 import { PhysicsManager } from './physics/PhysicsManager';
@@ -36,6 +38,14 @@ export async function initKeralaWorld(canvas: HTMLCanvasElement) {
   buildTerrain(scene);
   buildArchitecture(scene, (m) => lightRig.addShadowCaster(m));
   buildProps(scene);
+
+  // Natural landscape (forest wall, fog, procedural jungle vegetation, and a
+  // handful of loaded CC0 hero assets). The hero assets are fetched over the
+  // network, so we surface a loading flag on useGameStore while that happens.
+  useGameStore.getState().setWorldLoading(true);
+  buildLandscape(scene, (m) => lightRig.addShadowCaster(m))
+    .catch((err) => console.warn('[Landscape] buildLandscape failed:', err))
+    .finally(() => useGameStore.getState().setWorldLoading(false));
 
   // ── Post-processing pipeline ─────────────────────────────────────────────
   const pipeline = new DefaultRenderingPipeline('keralaPipeline', true, scene);

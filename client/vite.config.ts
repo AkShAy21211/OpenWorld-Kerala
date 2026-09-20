@@ -6,7 +6,7 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['@babylonjs/havok'],
   },
-  assetsInclude: ['**/*.wasm'],
+  assetsInclude: ['**/*.wasm', '**/*.glb', '**/*.gltf', '**/*.bin'],
   server: {
     port: 5173,
     proxy: {

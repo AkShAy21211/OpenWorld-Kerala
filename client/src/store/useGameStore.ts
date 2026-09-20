@@ -47,6 +47,10 @@ interface GameState {
   playerYaw: number;                           // radians, heading for minimap compass
   nearbyRidePrompt: RidePrompt | null;
   activeRideState: ActiveRideState;
+  /** True while the natural landscape's hero assets (Poly Haven GLTFs) are
+   *  still downloading/loading in Babylon. A loading overlay can subscribe
+   *  to this to show progress while buildLandscape() awaits AssetLoader. */
+  worldLoading: boolean;
 
   openModal: (modal: ModalType) => void;
   closeModal: () => void;
@@ -61,6 +65,7 @@ interface GameState {
   setPlayerYaw: (yaw: number) => void;
   setNearbyRidePrompt: (prompt: RidePrompt | null) => void;
   setActiveRideState: (state: ActiveRideState) => void;
+  setWorldLoading: (loading: boolean) => void;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -75,6 +80,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   playerYaw: 0,
   nearbyRidePrompt: null,
   activeRideState: { isRiding: false, rideId: null, rideName: null },
+  worldLoading: false,
 
   openModal: (modal) => {
     soundManager.playPop();
@@ -121,5 +127,6 @@ export const useGameStore = create<GameState>((set, get) => ({
   setPlayerYaw: (yaw) => set({ playerYaw: yaw }),
   setNearbyRidePrompt: (prompt) => set({ nearbyRidePrompt: prompt }),
   setActiveRideState: (state) => set({ activeRideState: state }),
+  setWorldLoading: (loading) => set({ worldLoading: loading }),
 }));
 
